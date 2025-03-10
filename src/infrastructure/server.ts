@@ -18,7 +18,7 @@ export class Server {
   constructor() {
     this.app = new Application();
     this.router = new Router();
-    const uri = Deno.env.get('MONGODB_URI') ?? '';
+    const uri = Deno.env.get('MONGODB_URI') ?? 'mongodb+srv://';
     this.mongoDBClient = new MongoClient(uri, {
       serverApi: {
         version: ServerApiVersion.v1,
