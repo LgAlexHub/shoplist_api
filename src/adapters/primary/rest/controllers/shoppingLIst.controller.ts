@@ -2,18 +2,38 @@ import { CreateShoppingListUseCase } from "../../../../application/useCases/crea
 import { Context, Router, RouterContext } from "../../../../../deps.ts";
 import { CreateShoppingItemUseCase } from "../../../../application/useCases/createShoppingItem.useCase.ts";
 import { GetShoppingListUseCaseById } from "../../../../application/useCases/getShoppingListById.useCase.ts";
+import { DeleteShoppingItemUseCase } from "../../../../application/useCases/deleteShoppingItem.useCase.ts";
 
 export class ShoppingListController {
   constructor(
     private createShoppingListUseCase: CreateShoppingListUseCase,
     private createShoppingItemUseCase: CreateShoppingItemUseCase,
     private getShoppingListByIdUseCase: GetShoppingListUseCaseById,
+    private deleteShoppingItemUseCase: DeleteShoppingItemUseCase
   ) {}
 
   public setUpRoutes(router: Router): void {
     router
       .post("/lists", this.createList.bind(this))
-      .post("/lists/:id/items", this.addItem.bind(this));
+      .post("/lists/:id/items", this.addItem.bind(this))
+      .delete("/lists/:id/items/:itemId", this.deleteItem.bind(this));
+  }
+
+  private async deleteItem(ctx: RouterContext<"/lists/:id/items/:itemId">){
+    const [listId, itemId] = [ctx.params.id, ctx.params.itemId];
+    let shoppingList = await this.getShoppingListByIdUseCase.execute(listId);
+    if (!shoppingList){
+      ctx.response.status = 404;
+      return;
+    }
+    try {
+      shoppingList = await this.deleteShoppingItemUseCase.execute(listId, itemId);
+    } catch (error) {
+      ctx.response.status = 500;
+      ctx.response.body = JSON.stringify({ error: error }, null, 2);
+    }
+    ctx.response.status = 200;
+    ctx.response.body = JSON.stringify(shoppingList, null, 2);
   }
 
   private async addItem(ctx: RouterContext<"/lists/:id/items">): Promise<void> {

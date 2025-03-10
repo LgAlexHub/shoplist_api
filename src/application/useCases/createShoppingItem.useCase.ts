@@ -18,7 +18,6 @@ export class CreateShoppingItemUseCase {
         try {
             const item = new ShoppingItem({
                 name : dto.name,
-                shopListId : dto.listId,
                 quantity : dto.quantity
             });
             list.addItem(item);

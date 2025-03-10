@@ -9,6 +9,7 @@ import { ShoppingListController } from "../adapters/primary/rest/controllers/sho
 import { MongoDBShoppingListRepository } from "../adapters/secondary/mongodb.shoppingList.repository.ts";
 import { CreateShoppingItemUseCase } from "../application/useCases/createShoppingItem.useCase.ts";
 import { CreateShoppingListUseCase } from "../application/useCases/createShoppingList.useCase.ts";
+import { DeleteShoppingItemUseCase } from "../application/useCases/deleteShoppingItem.useCase.ts";
 import { GetShoppingListUseCaseById } from "../application/useCases/getShoppingListById.useCase.ts";
 
 export class Server {
@@ -48,10 +49,15 @@ export class Server {
       shoppingListRepository
     );
 
+    const deleteShoppingItemUseCase = new DeleteShoppingItemUseCase(
+      shoppingListRepository
+    )
+
     const shoppingListController = new ShoppingListController(
       createShoppingListUseCase,
       createShoppingItemUseCase,
-      getShoppingListByIdUseCase
+      getShoppingListByIdUseCase,
+      deleteShoppingItemUseCase
     );
 
     shoppingListController.setUpRoutes(this.router);
