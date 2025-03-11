@@ -3,20 +3,22 @@ import { Context, Router, RouterContext } from "../../../../../deps.ts";
 import { CreateShoppingItemUseCase } from "../../../../application/useCases/createShoppingItem.useCase.ts";
 import { GetShoppingListUseCaseById } from "../../../../application/useCases/getShoppingListById.useCase.ts";
 import { DeleteShoppingItemUseCase } from "../../../../application/useCases/deleteShoppingItem.useCase.ts";
+import { AuthMiddleware } from "../middlewares/auth.middleware.ts";
 
 export class ShoppingListController {
   constructor(
     private createShoppingListUseCase: CreateShoppingListUseCase,
     private createShoppingItemUseCase: CreateShoppingItemUseCase,
     private getShoppingListByIdUseCase: GetShoppingListUseCaseById,
-    private deleteShoppingItemUseCase: DeleteShoppingItemUseCase
+    private deleteShoppingItemUseCase: DeleteShoppingItemUseCase,
+    private authMiddleWare: AuthMiddleware
   ) {}
 
   public setUpRoutes(router: Router): void {
     router
-      .post("/lists", this.createList.bind(this))
-      .post("/lists/:id/items", this.addItem.bind(this))
-      .delete("/lists/:id/items/:itemId", this.deleteItem.bind(this));
+      .post("/lists", this.authMiddleWare.authenticate, this.createList.bind(this))
+      .post("/lists/:id/items", this.authMiddleWare.authenticate, this.addItem.bind(this))
+      .delete("/lists/:id/items/:itemId", this.authMiddleWare.authenticate, this.deleteItem.bind(this));
   }
 
   private async deleteItem(ctx: RouterContext<"/lists/:id/items/:itemId">){

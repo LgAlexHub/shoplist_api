@@ -6,6 +6,7 @@ import {
   ServerApiVersion,
 } from "../../deps.ts";
 import { ShoppingListController } from "../adapters/primary/rest/controllers/shoppingLIst.controller.ts";
+import { AuthMiddleware, TokenAuthService } from "../adapters/primary/rest/middlewares/auth.middleware.ts";
 import { MongoDBShoppingListRepository } from "../adapters/secondary/mongodb.shoppingList.repository.ts";
 import { CreateShoppingItemUseCase } from "../application/useCases/createShoppingItem.useCase.ts";
 import { CreateShoppingListUseCase } from "../application/useCases/createShoppingList.useCase.ts";
@@ -39,6 +40,8 @@ export class Server {
       this.mongoDBClient,
     );
 
+    const authMiddleWare = new AuthMiddleware((new TokenAuthService));
+
     const createShoppingItemUseCase = new CreateShoppingItemUseCase(
       shoppingListRepository,
     );
@@ -57,7 +60,8 @@ export class Server {
       createShoppingListUseCase,
       createShoppingItemUseCase,
       getShoppingListByIdUseCase,
-      deleteShoppingItemUseCase
+      deleteShoppingItemUseCase,
+      authMiddleWare
     );
 
     shoppingListController.setUpRoutes(this.router);
